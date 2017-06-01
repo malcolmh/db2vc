@@ -2,56 +2,78 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <dbus/dbus.h>
 
 void receive() {
+  DBusConnection *conn = NULL;
+  DBusError err;
   DBusMessage* msg;
   DBusMessageIter args;
-  DBusConnection* conn;
-  DBusError err;
-  int ret;
-  char* sigvalue;
-
-  printf("Listening for signals\n");
+  DBusMessageIter ents;
+  DBusMessageIter eles;
+  DBusMessageIter vari;
+  int64_t ival;
+  double fval;
+  bool isflt;
+  const char* sigpath;
 
   dbus_error_init(&err);
   conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
   if (dbus_error_is_set(&err)) {
-    fprintf(stderr, "Connection Error (%s)\n", err.message);
-    dbus_error_free(&err);
-  }
-  if (conn == NULL) {
-    exit(1);
-  }
-  ret = dbus_bus_request_name(conn, "test.signal.receiver", DBUS_NAME_FLAG_REPLACE_EXISTING , &err);
-  if (dbus_error_is_set(&err)) {
-    fprintf(stderr, "Name Error (%s)\n", err.message);
-    dbus_error_free(&err);
-  }
-  if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-    exit(1);
+    printf("%s", err.message);
+    abort();
   }
   dbus_bus_add_match(conn, "type='signal',interface='com.victronenergy.BusItem'", &err);
   dbus_connection_flush(conn);
   if (dbus_error_is_set(&err)) {
-    fprintf(stderr, "Match Error (%s)\n", err.message);
-    exit(1);
+    printf("Match Error (%s)\n", err.message);
+    abort();
   }
-  printf("Match rule sent\n");
 
   while (true) {
     dbus_connection_read_write(conn, 0);
     msg = dbus_connection_pop_message(conn);
     if (msg == NULL) {
-      sleep(2);
+      sleep(1);
       continue;
     }
-    dbus_message_iter_get_arg_type(&args);
-    dbus_message_iter_get_basic(&args, &sigvalue);
-    printf("Got Signal with value %s\n", sigvalue);
+    if (dbus_message_is_signal(msg, "com.victronenergy.BusItem", "PropertiesChanged")) {
+      if (!dbus_message_iter_init(msg, &args))
+        printf("Message Has No Parameters\n");
+      else {
+        sigpath = dbus_message_get_path(msg);
+        printf("Path: %s", sigpath);
+        if ((dbus_message_iter_get_arg_type(&args) == 'a') && (dbus_message_iter_get_element_type(&args) == 'e')) {
+          dbus_message_iter_recurse(&args, &ents);
+          for (bool isval = false; !isval; dbus_message_iter_next(&ents)) {
+            dbus_message_iter_recurse(&ents, &eles);
+            char* key;
+            dbus_message_iter_get_basic(&eles, &key);
+            if (strcmp(key, "Value") == 0) {
+              isval = true;
+              dbus_message_iter_next(&eles);
+              dbus_message_iter_recurse(&eles, &vari);
+              if (dbus_message_iter_get_arg_type(&vari) == 'd') {
+                isflt = true;
+                dbus_message_iter_get_basic(&vari, &fval);
+printf(" %lf\n", fval);
+              } else if (dbus_message_iter_get_arg_type(&vari) == 'i') {
+                isflt = false;
+                dbus_message_iter_get_basic(&vari, &ival);
+printf(" %ld\n", ival);
+              } else {
+printf(" ?\n");
+              }
+            }
+            if (!isval && !dbus_message_iter_has_next(&ents)) break;
+          }
+        }
+      }
+    }
     dbus_message_unref(msg);
   }
-  dbus_connection_close(conn);
+
 }
 
 int main(int argc, char** argv) {
