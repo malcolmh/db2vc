@@ -15,7 +15,10 @@ int main(int argc, char** argv) {
   DBusMessageIter ents;
   DBusMessageIter eles;
   DBusMessageIter vari;
-  DBUpdate update;
+  const char* path;
+  int ival;
+  double fval;
+  bool isflt;
 
   dbus_error_init(&err);
   conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
@@ -39,7 +42,7 @@ int main(int argc, char** argv) {
     }
     if (dbus_message_is_signal(msg, "com.victronenergy.BusItem", "PropertiesChanged")) {
       if (dbus_message_iter_init(msg, &args)) {
-        update.path = dbus_message_get_path(msg);
+        path = dbus_message_get_path(msg);
         if ((dbus_message_iter_get_arg_type(&args) == 'a') && (dbus_message_iter_get_element_type(&args) == 'e')) {
           dbus_message_iter_recurse(&args, &ents);
           for (bool isval = false; !isval; dbus_message_iter_next(&ents)) {
@@ -50,14 +53,18 @@ int main(int argc, char** argv) {
               isval = true;
               dbus_message_iter_next(&eles);
               dbus_message_iter_recurse(&eles, &vari);
-              if (dbus_message_iter_get_arg_type(&vari) == 'd') {
-                update.isflt = true;
-                dbus_message_iter_get_basic(&vari, &update.val.fval);
-              } else if (dbus_message_iter_get_arg_type(&vari) == 'i') {
-                update.isflt = false;
-                dbus_message_iter_get_basic(&vari, &update.val.ival);
+              switch (dbus_message_iter_get_arg_type(&vari)) {
+              case 'd':
+                isflt = true;
+                dbus_message_iter_get_basic(&vari, &fval);
+                canUpdate(path, isflt, fval, ival);
+                break;
+              case 'i':
+                isflt = false;
+                dbus_message_iter_get_basic(&vari, &ival);
+                canUpdate(path, isflt, fval, ival);
+                break;
               }
-              canUpdate(update);
             }
             if (!isval && !dbus_message_iter_has_next(&ents)) break;
           }
