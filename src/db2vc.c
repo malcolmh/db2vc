@@ -4,8 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dbus/dbus.h>
+#include "dbcan.h"
 
-void receive() {
+
+int main(int argc, char** argv) {
   DBusConnection *conn = NULL;
   DBusError err;
   DBusMessage* msg;
@@ -13,21 +15,18 @@ void receive() {
   DBusMessageIter ents;
   DBusMessageIter eles;
   DBusMessageIter vari;
-  int64_t ival;
-  double fval;
-  bool isflt;
-  const char* sigpath;
+  DBUpdate update;
 
   dbus_error_init(&err);
   conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
   if (dbus_error_is_set(&err)) {
-    printf("%s", err.message);
+    fprintf(stderr, "%s", err.message);
     abort();
   }
   dbus_bus_add_match(conn, "type='signal',interface='com.victronenergy.BusItem'", &err);
   dbus_connection_flush(conn);
   if (dbus_error_is_set(&err)) {
-    printf("Match Error (%s)\n", err.message);
+    fprintf(stderr, "Match Error (%s)\n", err.message);
     abort();
   }
 
@@ -39,11 +38,8 @@ void receive() {
       continue;
     }
     if (dbus_message_is_signal(msg, "com.victronenergy.BusItem", "PropertiesChanged")) {
-      if (!dbus_message_iter_init(msg, &args))
-        printf("Message Has No Parameters\n");
-      else {
-        sigpath = dbus_message_get_path(msg);
-        printf("Path: %s", sigpath);
+      if (dbus_message_iter_init(msg, &args)) {
+        update.path = dbus_message_get_path(msg);
         if ((dbus_message_iter_get_arg_type(&args) == 'a') && (dbus_message_iter_get_element_type(&args) == 'e')) {
           dbus_message_iter_recurse(&args, &ents);
           for (bool isval = false; !isval; dbus_message_iter_next(&ents)) {
@@ -55,16 +51,13 @@ void receive() {
               dbus_message_iter_next(&eles);
               dbus_message_iter_recurse(&eles, &vari);
               if (dbus_message_iter_get_arg_type(&vari) == 'd') {
-                isflt = true;
-                dbus_message_iter_get_basic(&vari, &fval);
-printf(" %lf\n", fval);
+                update.isflt = true;
+                dbus_message_iter_get_basic(&vari, &update.val.fval);
               } else if (dbus_message_iter_get_arg_type(&vari) == 'i') {
-                isflt = false;
-                dbus_message_iter_get_basic(&vari, &ival);
-printf(" %ld\n", ival);
-              } else {
-printf(" ?\n");
+                update.isflt = false;
+                dbus_message_iter_get_basic(&vari, &update.val.ival);
               }
+              canUpdate(update);
             }
             if (!isval && !dbus_message_iter_has_next(&ents)) break;
           }
@@ -73,10 +66,5 @@ printf(" ?\n");
     }
     dbus_message_unref(msg);
   }
-
-}
-
-int main(int argc, char** argv) {
-  receive();
   return 0;
 }
