@@ -43,8 +43,8 @@ bool initCAN() {
 void canUpdate(const char* path, bool isflt, double fval, int ival) {
   printf("Path: %s, Value: ", path);
   if (isflt) {
-    printf("%lf\n", fval);
+    printf("d=%lf\n", fval);
   } else {
-    printf("%d\n", ival);
+    printf("i=%d\n", ival);
   }
 }

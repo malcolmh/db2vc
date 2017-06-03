@@ -75,7 +75,10 @@ int main(int argc, char** argv) {
 
   dbus_connection_add_filter(conn, signal_filter, NULL, NULL);
 
-  g_main_loop_run(loop);
+  if (initCAN())
+    g_main_loop_run(loop);
+  else
+    return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
 }
