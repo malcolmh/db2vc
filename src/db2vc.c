@@ -1,3 +1,10 @@
+/*
+ * db2vc.c
+ *
+ *  Created on: 1 Jun 2017
+ *      Author: mherring
+ */
+
 #include <stdbool.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -21,7 +28,8 @@ DBusHandlerResult signal_filter(DBusConnection *conn, DBusMessage *msg, void *us
   if (dbus_message_is_signal(msg, "com.victronenergy.BusItem", "PropertiesChanged")) {
     if (dbus_message_iter_init(msg, &args)) {
       path = dbus_message_get_path(msg);
-      if ((dbus_message_iter_get_arg_type(&args) == 'a') && (dbus_message_iter_get_element_type(&args) == 'e')) {
+      if ((dbus_message_iter_get_arg_type(&args) == 'a') &&
+          (dbus_message_iter_get_element_type(&args) == 'e')) {
         dbus_message_iter_recurse(&args, &ents);
         for (bool isval = false; !isval; dbus_message_iter_next(&ents)) {
           dbus_message_iter_recurse(&ents, &eles);

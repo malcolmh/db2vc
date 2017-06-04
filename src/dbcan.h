@@ -13,6 +13,7 @@
 bool initCAN();
 void canUpdate(const char* path, bool isflt, double fval, int ival);
 
+#define SRC_DBCAN_C_
 #ifdef SRC_DBCAN_C_
 
 typedef enum {ANUL, ASEQ, AFLT, AINT} Atype;
@@ -50,5 +51,5 @@ PGN P127744 = {127744, {&aseq, &afix0, &AcActiveInL1I, &AcActiveInL1P, NULL}};
 
 Path paths[] = {{"/Ac/ActiveIn/L1/I", &AcActiveInL1I}, {"/Ac/ActiveOut/L1/I", &AcActiveOutL1I}, {}};
 
-#endif /* SRC_DBCAN_H_ */
 #endif /* SRC_DBCAN_C_ */
+#endif /* SRC_DBCAN_H_ */
