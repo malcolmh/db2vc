@@ -1,9 +1,0 @@
-. /opt/venus/current/environment-setup-armv7a-vfp-neon-ve-linux-gnueabi
-$CC -std=gnu11 \
-`pkg-config --cflags dbus-glib-1` \
-`pkg-config --cflags dbus-1` \
-`pkg-config --cflags glib-2.0` \
-../src/db2vc.c ../src/dbcan.c -o db2vc \
-`pkg-config --libs dbus-glib-1` \
-`pkg-config --libs dbus-1` \
-`pkg-config --libs glib-2.0`

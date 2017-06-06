@@ -13,19 +13,20 @@
 bool initCAN();
 void canUpdate(const char* path, bool isflt, double fval, int ival);
 
-#define SRC_DBCAN_C_
+#endif /* SRC_DBCAN_H_ */
 #ifdef SRC_DBCAN_C_
 
 typedef enum {ANUL, ASEQ, AFLT, AINT} Atype;
 
 typedef struct pgn PGN;
+typedef struct args Args;
 
-typedef struct {
+struct args {
   Atype type;;
   double fval;
   int ival;
-  PGN* pgns[];
-} Args;
+  int pgns[];
+};
 
 typedef struct {
   char *name;
@@ -37,19 +38,16 @@ struct pgn {
   Args* Args[];
 };
 
-PGN P127744;
-
-Args AcActiveInL1I = {ANUL, 0, 0, {&P127744, NULL}};
-Args AcActiveInL1P = {ANUL, 0, 0, {&P127744, NULL}};
-Args AcActiveOutL1I = {ANUL, 0, 0, {&P127744, NULL}};
-Args AcActiveOutL1P = {ANUL, 0, 0, {&P127744, NULL}};
-Args afix0 = {AINT, 0, 0, {NULL}};
-Args afix1 = {AINT, 0, 1, {NULL}};
-Args aseq = {ASEQ, 0, 0, {NULL}};
+Args AcActiveInL1I = {ANUL, 0, 0, {127744, 0}};
+Args AcActiveInL1P = {ANUL, 0, 0, {127744, 0}};
+Args AcActiveOutL1I = {ANUL, 0, 0, {127744, 0}};
+Args AcActiveOutL1P = {ANUL, 0, 0, {127744, 0}};
+Args afix0 = {AINT, 0, 0, {0}};
+Args afix1 = {AINT, 0, 1, {0}};
+Args aseq = {ASEQ, 0, 0, {0}};
 
 PGN P127744 = {127744, {&aseq, &afix0, &AcActiveInL1I, &AcActiveInL1P, NULL}};
 
 Path paths[] = {{"/Ac/ActiveIn/L1/I", &AcActiveInL1I}, {"/Ac/ActiveOut/L1/I", &AcActiveOutL1I}, {}};
 
 #endif /* SRC_DBCAN_C_ */
-#endif /* SRC_DBCAN_H_ */
