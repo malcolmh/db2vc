@@ -77,6 +77,7 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
     }
   }
   if (parg != NULL) {
+    printf("Path found, ");
     if (isflt) {
       parg->type = AFLT;
       parg->fval = fval;
@@ -95,6 +96,7 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
         }
       }
       if (marg != NULL) {
+        printf("Message found, ");
         int nargs = 1;
         params[0].typ = M2K_I64;
         params[0].dat.i64 = mpgn;
@@ -116,7 +118,9 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
             break;
           }
         }
+        printf("Params built, ");
         encodeN2000(nargs, params, &message);
+        printf("Encoded\n");
         char decode[2000];
         printf("%s\n", decodeN2000(&message, decode));
       }
