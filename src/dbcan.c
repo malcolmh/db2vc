@@ -73,7 +73,9 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
   printf("Search for path, ");
   for (int i = 0; paths[i].name != NULL; i++) {
     if (strcmp(path, paths[i].name) == 0) {
+      printf("String match, ");
       parg = paths[i].arg;
+      printf("Arg pointer saved, ");
       break;
     }
   }
