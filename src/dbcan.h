@@ -35,35 +35,49 @@ void canUpdate(const char* path, bool isflt, double fval, int ival);
 
 typedef enum {ANUL, ASEQ, AINT, AFLT} Atype;
 
+typedef struct pgn PGN;
+
 typedef struct {
   Atype type;;
   double fval;
   int ival;
-  int pgns[];
+  PGN* pgns[];
 } Arg;
 
-typedef struct {
+struct pgn {
   int pgn;
-  Arg** arg;
-} PGN;
+  Arg* args[];
+};
 
 typedef struct {
   char* name;
   Arg* arg;
 } Path;
 
-Arg AcActiveInL1I = {ANUL, 0, 0, {127744, 0}};
-Arg AcActiveInL1P = {ANUL, 0, 0, {127744, 0}};
-Arg AcActiveOutL1I = {ANUL, 0, 0, {127744, 0}};
-Arg AcActiveOutL1P = {ANUL, 0, 0, {127744, 0}};
-Arg afix0 = {AINT, 0, 0, {0}};
-Arg afix1 = {AINT, 0, 1, {0}};
-Arg aseq = {ASEQ, 0, 0, {0}};
+PGN AAIL1PI, AOL1PI, AAIL1VF, AOL1VF;
 
-Arg* P127744[] = {&aseq, &afix0, &AcActiveInL1I, &AcActiveInL1P, NULL};
+Arg AcActiveInL1I = {ANUL, 0, 0, {&AAIL1PI, NULL}};
+Arg AcActiveInL1P = {ANUL, 0, 0, {&AAIL1PI, NULL}};
+Arg AcOutL1I = {ANUL, 0, 0, {&AOL1PI, NULL}};
+Arg AcOutL1P = {ANUL, 0, 0, {&AOL1PI, NULL}};
+Arg AcActiveInL1F = {ANUL, 0, 0, {&AAIL1VF, NULL}};
+Arg AcActiveInL1V = {ANUL, 0, 0, {&AAIL1VF, NULL}};
+Arg AcOutL1F = {ANUL, 0, 0, {&AOL1VF, NULL}};
+Arg AcOutL1V = {ANUL, 0, 0, {&AOL1VF, NULL}};
+Arg afix0 = {AINT, 0, 0, {NULL}};
+Arg afix1 = {AINT, 0, 1, {NULL}};
+Arg aseq = {ASEQ, 0, 0, {NULL}};
+Arg ana = {ANUL, 0, 0, {NULL}};
 
-PGN pgns[] = {{127744, P127744}, {0, NULL}};
+PGN AAIL1PI = {127744, {&aseq, &afix0, &AcActiveInL1I, &AcActiveInL1P, NULL}};
+PGN AOL1PI = {127744, {&aseq, &afix1, &AcOutL1I, &AcOutL1P, NULL}};
+PGN AAIL1VF = {127747, {&aseq, &afix0, &AcActiveInL1V, &ana, &AcActiveInL1F, NULL}};
+PGN AOL1VF = {127747, {&aseq, &afix1, &AcOutL1V, &ana, &AcOutL1F, NULL}};
 
-Path paths[] = {{"/Ac/ActiveIn/L1/I", &AcActiveInL1I}, {"/Ac/ActiveOut/L1/I", &AcActiveOutL1I}, {NULL}};
+Path paths[] = {{"/Ac/ActiveIn/L1/I", &AcActiveInL1I}, {"/Ac/Out/L1/I", &AcOutL1I},
+    {"/Ac/ActiveIn/L1/F", &AcActiveInL1F}, {"/Ac/Out/L1/F", &AcOutL1F},
+    {"/Ac/ActiveIn/L1/P", &AcActiveInL1P}, {"/Ac/Out/L1/P", &AcOutL1P},
+    {"/Ac/ActiveIn/L1/V", &AcActiveInL1V}, {"/Ac/Out/L1/V", &AcOutL1V},
+    {NULL, NULL}};
 
 #endif /* SRC_DBCAN_C_ */

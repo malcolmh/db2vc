@@ -61,28 +61,17 @@ bool initCAN() {
 void canUpdate(const char* path, bool isflt, double fval, int ival) {
   T_2000 params[100];
   E_2000 message;
-
-  printf("Path: %s, Value: ", path);
-  if (isflt) {
-    printf("d=%lf\n", fval);
-  } else {
-    printf("i=%d\n", ival);
-  }
+  X_2000 frames[32];
+  int seq = 0;
 
   Arg* parg = NULL;
-  printf("Search for path, ");
   for (int i = 0; paths[i].name != NULL; i++) {
-    printf("Entry: %s, ", paths[i].name);
     if (strcmp(path, paths[i].name) == 0) {
-      printf("String match, ");
       parg = paths[i].arg;
-      printf("Arg pointer saved, ");
       break;
     }
   }
-  if (parg == NULL) printf("Not found\n");
   if (parg != NULL) {
-/*    printf("Path found, ");
     if (isflt) {
       parg->type = AFLT;
       parg->fval = fval;
@@ -90,46 +79,38 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
       parg->type = AINT;
       parg->ival = ival;
     }
-    for (int i = 0; parg->pgns[i] != 0; i++) {
-      int mpgn = 0;
-      Arg** marg = NULL;
-      for (int j = 0; pgns[j].pgn != 0; j++) {
-        if (pgns[j].pgn == parg->pgns[i]) {
-          mpgn = pgns[j].pgn;
-          marg = pgns[j].arg;
+    for (int i = 0; parg->pgns[i] != NULL; i++) {
+      int npars = 1;
+      params[0].typ = M2K_I64;
+      params[0].dat.i64 = parg->pgns[i]->pgn;
+      Arg** marg = parg->pgns[i]->args;
+      for (int j = 0; marg[j] != NULL; j++, npars++) {
+        switch (marg[j]->type) {
+        case ANUL:
+          params[npars].typ = M2K_I64;
+          params[npars].dat.i64 = INT64_MAX;
+          break;
+        case ASEQ:
+          params[npars].typ = M2K_I64;
+          params[npars].dat.i64 = marg[j]->ival++;
+          break;
+        case AINT:
+          params[npars].typ = M2K_I64;
+          params[npars].dat.i64 = marg[j]->ival;
+          break;
+        case AFLT:
+          params[npars].typ = M2K_F64;
+          params[npars].dat.f64 = marg[j]->fval;
+          break;
+        default:
           break;
         }
       }
-      if (marg != NULL) {
-        printf("Message found, ");
-        int nargs = 1;
-        params[0].typ = M2K_I64;
-        params[0].dat.i64 = mpgn;
-        for (int j = 0; marg[j] != NULL; j++, nargs++) {
-          switch (marg[j]->type) {
-          case ASEQ:
-            params[nargs].typ = M2K_I64;
-            params[nargs].dat.i64 = marg[j]->ival++;
-            break;
-          case AINT:
-            params[nargs].typ = M2K_I64;
-            params[nargs].dat.i64 = marg[j]->ival;
-            break;
-          case AFLT:
-            params[nargs].typ = M2K_F64;
-            params[nargs].dat.f64 = marg[j]->fval;
-            break;
-          default:
-            break;
-          }
-        }
-        printf("Params built, ");
-        encodeN2000(nargs, params, &message);
-        printf("Encoded\n");
-        char decode[2000];
-        printf("%s\n", decodeN2000(&message, decode));
+      encodeN2000(npars, params, &message);
+      int nf = framesN2000(&message, seq++, message.src, message.dst, frames);
+      for (int j = 0; j < nf; j++) {
+        write(can, &frames[j], sizeof(struct can_frame));
       }
     }
-*/  }
-
+  }
 }
