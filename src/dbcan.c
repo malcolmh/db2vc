@@ -75,7 +75,7 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
     printf("Entry: %s, ", paths[i].name);
     if (strcmp(path, paths[i].name) == 0) {
       printf("String match, ");
-//      parg = paths[i].arg;
+      parg = paths[i].arg;
       printf("Arg pointer saved, ");
       break;
     }
