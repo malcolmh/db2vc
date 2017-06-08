@@ -70,6 +70,7 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
   }
 
   Arg* parg = NULL;
+  printf("Search for path, ");
   for (int i = 0; paths[i].name != NULL; i++) {
     if (strcmp(path, paths[i].name) == 0) {
       parg = paths[i].arg;
