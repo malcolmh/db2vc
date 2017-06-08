@@ -82,7 +82,7 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
   }
   if (parg == NULL) printf("Not found\n");
   if (parg != NULL) {
-    printf("Path found, ");
+/*    printf("Path found, ");
     if (isflt) {
       parg->type = AFLT;
       parg->fval = fval;
@@ -130,6 +130,6 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
         printf("%s\n", decodeN2000(&message, decode));
       }
     }
-  }
+*/  }
 
 }
