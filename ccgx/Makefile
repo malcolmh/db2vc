@@ -5,9 +5,11 @@ clean:
 
 db2vc: db2vc.o dbcan.o
 	$$CC -o db2vc db2vc.o dbcan.o \
+../../mndd/ccgx/e2000.o ../../mndd/ccgx/n2000.o ../../mndd/ccgx/m1371.o \
 `pkg-config --libs dbus-glib-1` \
 `pkg-config --libs dbus-1` \
-`pkg-config --libs glib-2.0`
+`pkg-config --libs glib-2.0` \
+-lm
 
 dbcan.o: ../src/dbcan.c ../src/dbcan.h
 	$$CC -c -std=gnu11 \

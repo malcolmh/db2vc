@@ -24,6 +24,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
@@ -33,6 +35,7 @@
 
 #define SRC_DBCAN_C_
 #include "dbcan.h"
+#include "dbcan.t"
 
 static int can;
 
