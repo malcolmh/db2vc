@@ -110,6 +110,7 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
         }
       }
       encodeN2000(npars, params, &message);
+      message.src = 123;
       int nf = framesN2000(&message, seq++, message.src, message.dst, frames);
       for (int j = 0; j < nf; j++) {
         write(can, &frames[j], sizeof(struct can_frame));
