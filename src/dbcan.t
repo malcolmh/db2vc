@@ -33,9 +33,11 @@ typedef enum {ANUL, ASEQ, AINT, AFLT} Atype;
 typedef struct pgn PGN;
 
 typedef struct {
-  Atype type;;
-  double fval;
-  int ival;
+  Atype type;
+  union {
+    double fval;
+    int ival;
+  } val;
   PGN* pgns[];
 } Arg;
 
@@ -51,18 +53,18 @@ typedef struct {
 
 static PGN AAIL1PI, AOL1PI, AAIL1VF, AOL1VF;
 
-static Arg AcActiveInL1I = {ANUL, 0, 0, {&AAIL1PI, NULL}};
-static Arg AcActiveInL1P = {ANUL, 0, 0, {&AAIL1PI, NULL}};
-static Arg AcOutL1I = {ANUL, 0, 0, {&AOL1PI, NULL}};
-static Arg AcOutL1P = {ANUL, 0, 0, {&AOL1PI, NULL}};
-static Arg AcActiveInL1F = {ANUL, 0, 0, {&AAIL1VF, NULL}};
-static Arg AcActiveInL1V = {ANUL, 0, 0, {&AAIL1VF, NULL}};
-static Arg AcOutL1F = {ANUL, 0, 0, {&AOL1VF, NULL}};
-static Arg AcOutL1V = {ANUL, 0, 0, {&AOL1VF, NULL}};
-static Arg afix0 = {AINT, 0, 0, {NULL}};
-static Arg afix1 = {AINT, 0, 1, {NULL}};
-static Arg aseq = {ASEQ, 0, 0, {NULL}};
-static Arg ana = {ANUL, 0, 0, {NULL}};
+static Arg AcActiveInL1I = {ANUL, 0, {&AAIL1PI, NULL}};
+static Arg AcActiveInL1P = {ANUL, 0, {&AAIL1PI, NULL}};
+static Arg AcOutL1I = {ANUL, 0, {&AOL1PI, NULL}};
+static Arg AcOutL1P = {ANUL, 0, {&AOL1PI, NULL}};
+static Arg AcActiveInL1F = {ANUL, 0, {&AAIL1VF, NULL}};
+static Arg AcActiveInL1V = {ANUL, 0, {&AAIL1VF, NULL}};
+static Arg AcOutL1F = {ANUL, 0, {&AOL1VF, NULL}};
+static Arg AcOutL1V = {ANUL, 0, {&AOL1VF, NULL}};
+static Arg afix0 = {AINT, 0, {NULL}};
+static Arg afix1 = {AINT, (int)1, {NULL}};
+static Arg aseq = {ASEQ, 0, {NULL}};
+static Arg ana = {ANUL, 0, {NULL}};
 
 static PGN AAIL1PI = {127744, {&aseq, &afix0, &AcActiveInL1I, &AcActiveInL1P, NULL}};
 static PGN AOL1PI = {127744, {&aseq, &afix1, &AcOutL1I, &AcOutL1P, NULL}};

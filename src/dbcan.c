@@ -77,10 +77,10 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
   if (parg != NULL) {
     if (isflt) {
       parg->type = AFLT;
-      parg->fval = fval;
+      parg->val.fval = fval;
     } else {
       parg->type = AINT;
-      parg->ival = ival;
+      parg->val.ival = ival;
     }
     for (int i = 0; parg->pgns[i] != NULL; i++) {
       int npars = 1;
@@ -95,15 +95,15 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
           break;
         case ASEQ:
           params[npars].typ = M2K_I64;
-          params[npars].dat.i64 = marg[j]->ival++;
+          params[npars].dat.i64 = marg[j]->val.ival++;
           break;
         case AINT:
           params[npars].typ = M2K_I64;
-          params[npars].dat.i64 = marg[j]->ival;
+          params[npars].dat.i64 = marg[j]->val.ival;
           break;
         case AFLT:
           params[npars].typ = M2K_F64;
-          params[npars].dat.f64 = marg[j]->fval;
+          params[npars].dat.f64 = marg[j]->val.fval;
           break;
         default:
           break;
