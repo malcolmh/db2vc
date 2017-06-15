@@ -8,7 +8,7 @@ db2vc: db2vc.o dbcan.o
 `pkg-config --libs dbus-glib-1` \
 `pkg-config --libs dbus-1` \
 `pkg-config --libs glib-2.0` \
--L../../mndd/ccgx/ -lmnd -lm
+-L../../mndlib/ccgx/ -lmnd -lm
 
 dbcan.o: ../src/dbcan.c ../src/dbcan.h
 	$$CC -c -std=gnu11 \

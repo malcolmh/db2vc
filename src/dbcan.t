@@ -62,7 +62,7 @@ static Arg AcActiveInL1V = {ANUL, 0, {&AAIL1VF, NULL}};
 static Arg AcOutL1F = {ANUL, 0, {&AOL1VF, NULL}};
 static Arg AcOutL1V = {ANUL, 0, {&AOL1VF, NULL}};
 static Arg afix0 = {AINT, 0, {NULL}};
-static Arg afix1 = {AINT, (int)1, {NULL}};
+static Arg afix1 = {AINT, {.ival=1}, {NULL}};
 static Arg aseq = {ASEQ, 0, {NULL}};
 static Arg ana = {ANUL, 0, {NULL}};
 
