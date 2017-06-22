@@ -76,35 +76,146 @@ DBusHandlerResult signal_filter(DBusConnection *conn, DBusMessage *msg, void *us
   return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
-int main(int argc, char** argv) {
-  DBusConnection* conn;
+bool getnad() {
   DBusError err;
+  DBusConnection* conn;
+  int ret;
 
-  GMainLoop* loop = g_main_loop_new(NULL, FALSE);
   dbus_error_init(&err);
-
   conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
   if (dbus_error_is_set(&err)) {
-    g_error("Cannot get System BUS connection: %s", err.message);
+    fprintf(stderr, "Connection Error (%s)\n", err.message);
     dbus_error_free(&err);
+  }
+  if (NULL == conn) {
+    return false;
+  }
+
+  DBusMessage* msg;
+  DBusMessageIter args;
+  DBusMessageIter vari;
+  DBusPendingCall* pending;
+  dbus_uint32_t nad;
+
+  msg = dbus_message_new_method_call("com.victronenergy.settings",
+      "/Settings/Vecan/can0/MainInterface/Nad",
+      "com.victronenergy.BusItem", "GetValue");
+   if (NULL == msg) { 
+      fprintf(stderr, "Message Null\n");
+      return false;
+   }
+
+   // send message and get a handle for a reply
+   if (!dbus_connection_send_with_reply (conn, msg, &pending, -1)) { // -1 is default timeout
+      fprintf(stderr, "Out Of Memory!\n"); 
+      return false;
+   }
+   if (NULL == pending) { 
+      fprintf(stderr, "Pending Call Null\n"); 
+      return false;
+   }
+   dbus_connection_flush(conn);
+
+   // free message
+   dbus_message_unref(msg);
+
+   // block until we receive a reply
+   dbus_pending_call_block(pending);
+   
+   // get the reply message
+   msg = dbus_pending_call_steal_reply(pending);
+   if (NULL == msg) {
+      fprintf(stderr, "Reply Null\n"); 
+      return false;
+   }
+   // free the pending message handle
+   dbus_pending_call_unref(pending);
+
+   // read the parameters
+   if (!dbus_message_iter_init(msg, &args))
+      fprintf(stderr, "Message has no arguments!\n"); 
+   else if (dbus_message_iter_get_arg_type(&args) != DBUS_TYPE_VARIANT)
+      fprintf(stderr, "Argument is not variant!\n");
+   else {
+     dbus_message_iter_recurse(&args, &vari);
+     dbus_message_iter_get_basic(&vari, &nad);
+     printf("NAD = %d\n", nad);
+   }
+
+   // free reply and close connection
+   dbus_message_unref(msg);   
+  return true;
+}
+
+int main(int argc, char** argv) {
+  DBusConnection* conn;
+  DBusError error;
+  DBusMessage* msg;
+  DBusMessageIter args;
+  DBusMessageIter vari;
+  DBusPendingCall* pending;
+  dbus_uint32_t nad;
+
+  GMainLoop* loop = g_main_loop_new(NULL, FALSE);
+  dbus_error_init(&error);
+
+  conn = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
+  if (dbus_error_is_set(&error)) {
+    g_error("Cannot get System BUS connection: %s", error.message);
+    dbus_error_free(&error);
     return EXIT_FAILURE;
   }
 
+  msg = dbus_message_new_method_call("com.victronenergy.settings",
+      "/Settings/Vecan/can0/MainInterface/Nad", "com.victronenergy.BusItem",
+      "GetValue");
+  if (msg == NULL) {
+    fprintf(stderr, "Message Null\n");
+    return EXIT_FAILURE;
+  }
+  if (!dbus_connection_send_with_reply(conn, msg, &pending, -1)) {
+    fprintf(stderr, "Out Of Memory\n");
+    return EXIT_FAILURE;
+  }
+  if (pending == NULL) {
+    fprintf(stderr, "Pending Call Null\n");
+    return EXIT_FAILURE;
+  }
+  dbus_connection_flush(conn);
+  dbus_message_unref(msg);
+  dbus_pending_call_block(pending);
+  msg = dbus_pending_call_steal_reply(pending);
+  if (msg == NULL) {
+    fprintf(stderr, "Reply Null\n");
+    return EXIT_FAILURE;
+  }
+  dbus_pending_call_unref(pending);
+  if (!dbus_message_iter_init(msg, &args))
+    fprintf(stderr, "Message has no arguments\n");
+  else if (dbus_message_iter_get_arg_type(&args) != DBUS_TYPE_VARIANT)
+    fprintf(stderr, "Argument is not variant\n");
+  else {
+    dbus_message_iter_recurse(&args, &vari);
+    dbus_message_iter_get_basic(&vari, &nad);
+  }
+  dbus_message_unref(msg);
+
   dbus_connection_setup_with_g_main(conn, NULL);
 
-  dbus_bus_add_match(conn, "type='signal',interface='com.victronenergy.BusItem'", &err);
-  if (dbus_error_is_set(&err)) {
-    g_error("Cannot add D-BUS match rule, cause: %s", err.message);
-    dbus_error_free(&err);
+  dbus_bus_add_match(conn, "type='signal',interface='com.victronenergy.BusItem'", &error);
+  if (dbus_error_is_set(&error)) {
+    g_error("Cannot add D-BUS match rule, cause: %s", error.message);
+    dbus_error_free(&error);
     return EXIT_FAILURE;
   }
 
   dbus_connection_add_filter(conn, signal_filter, NULL, NULL);
 
-  if (initCAN())
+  if (initCAN(nad)) {
     g_main_loop_run(loop);
-  else
+  } else {
     return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

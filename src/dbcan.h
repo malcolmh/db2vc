@@ -25,7 +25,7 @@
 #ifndef SRC_DBCAN_H_
 #define SRC_DBCAN_H_
 
-bool initCAN();
+bool initCAN(int nad);
 void canUpdate(const char* path, bool isflt, double fval, int ival);
 
 #endif /* SRC_DBCAN_H_ */

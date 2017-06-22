@@ -51,7 +51,7 @@ typedef struct {
   Arg* arg;
 } Path;
 
-static PGN AAIL1PI, AOL1PI, AAIL1VF, AOL1VF;
+static PGN AAIL1PI, AOL1PI, AAIL1VF, AOL1VF, D0VI, BStatus;
 
 static Arg AcActiveInL1I = {ANUL, 0, {&AAIL1PI, NULL}};
 static Arg AcActiveInL1P = {ANUL, 0, {&AAIL1PI, NULL}};
@@ -61,6 +61,10 @@ static Arg AcActiveInL1F = {ANUL, 0, {&AAIL1VF, NULL}};
 static Arg AcActiveInL1V = {ANUL, 0, {&AAIL1VF, NULL}};
 static Arg AcOutL1F = {ANUL, 0, {&AOL1VF, NULL}};
 static Arg AcOutL1V = {ANUL, 0, {&AOL1VF, NULL}};
+static Arg Dc0Voltage = {ANUL, 0, {&D0VI, NULL}};
+static Arg Dc0Current = {ANUL, 0, {&D0VI, NULL}};
+static Arg DcBVoltage = {ANUL, 0, {&BStatus, NULL}};
+static Arg DcBCurrent = {ANUL, 0, {&BStatus, NULL}};
 static Arg afix0 = {AINT, 0, {NULL}};
 static Arg afix1 = {AINT, {.ival=1}, {NULL}};
 static Arg aseq = {ASEQ, 0, {NULL}};
@@ -70,11 +74,15 @@ static PGN AAIL1PI = {127744, {&aseq, &afix0, &AcActiveInL1I, &AcActiveInL1P, NU
 static PGN AOL1PI = {127744, {&aseq, &afix1, &AcOutL1I, &AcOutL1P, NULL}};
 static PGN AAIL1VF = {127747, {&aseq, &afix0, &AcActiveInL1V, &ana, &AcActiveInL1F, NULL}};
 static PGN AOL1VF = {127747, {&aseq, &afix1, &AcOutL1V, &ana, &AcOutL1F, NULL}};
+static PGN D0VI = {127751, {&aseq, &afix0, &Dc0Voltage, &Dc0Current, &ana, NULL}};
+static PGN BStatus = {127508, {&afix1, &DcBVoltage, &DcBCurrent, &ana, &aseq, NULL}};
 
 static Path paths[] = {{"/Ac/ActiveIn/L1/I", &AcActiveInL1I}, {"/Ac/Out/L1/I", &AcOutL1I},
     {"/Ac/ActiveIn/L1/F", &AcActiveInL1F}, {"/Ac/Out/L1/F", &AcOutL1F},
     {"/Ac/ActiveIn/L1/P", &AcActiveInL1P}, {"/Ac/Out/L1/P", &AcOutL1P},
     {"/Ac/ActiveIn/L1/V", &AcActiveInL1V}, {"/Ac/Out/L1/V", &AcOutL1V},
+    {"/Dc/0/Voltage", &Dc0Voltage}, {"/Dc/0/Current", &Dc0Current},
+    {"/Dc/Battery/Voltage", &DcBVoltage}, {"/Dc/Battery/Current", &DcBCurrent},
     {NULL, NULL}};
 
 #endif /* SRC_DBCAN_T_ */

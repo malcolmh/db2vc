@@ -10,7 +10,7 @@ db2vc: db2vc.o dbcan.o
 `pkg-config --libs glib-2.0` \
 -L/usr/local/lib/ -lmnd
 
-dbcan.o: ../src/dbcan.c ../src/dbcan.h
+dbcan.o: ../src/dbcan.c ../src/dbcan.h ../src/dbcan.t
 	cc -c -std=gnu11 \
 `pkg-config --cflags dbus-glib-1` \
 `pkg-config --cflags dbus-1` \

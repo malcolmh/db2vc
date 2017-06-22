@@ -38,11 +38,13 @@
 #include "dbcan.t"
 
 static int can;
+static int src;
 
-bool initCAN() {
+bool initCAN(int nad) {
   struct sockaddr_can addr;
   struct ifreq ifr;
 
+  src = nad;
   can = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 
   strcpy(ifr.ifr_name, "can0");
@@ -110,7 +112,7 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
         }
       }
       encodeN2000(npars, params, &message);
-      message.src = 1;
+      message.src = src;
       int nf = framesN2000(&message, seq++, message.src, message.dst, frames);
       for (int j = 0; j < nf; j++) {
         write(can, &frames[j], sizeof(struct can_frame));
