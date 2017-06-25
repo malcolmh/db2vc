@@ -66,7 +66,7 @@ bool initCAN(int nad) {
 void canUpdate(const char* path, bool isflt, double fval, int ival) {
   T_2000 params[100];
   E_2000 message;
-  X_2000 frames[32];
+  S_2000 frames[32];
   int seq = 0;
 
   Arg* parg = NULL;
@@ -113,7 +113,7 @@ void canUpdate(const char* path, bool isflt, double fval, int ival) {
       }
       encodeN2000(npars, params, &message);
       message.src = src;
-      int nf = framesN2000(&message, seq++, message.src, message.dst, frames);
+      int nf = enframeN2000(&message, seq++, frames);
       for (int j = 0; j < nf; j++) {
         write(can, &frames[j], sizeof(struct can_frame));
       }
